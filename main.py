@@ -37,13 +37,14 @@ def draw_window(surface, ball, level, obstacles):
 
     ball.draw(surface)
 
-
 def main():
     ball = Ball(200, 200)
-    obstacles = [Wall((0, 0),0,(10, WIN_HEIGHT)),
-                 Wall((0, 0), 90, (WIN_WIDTH, 10)),
-                 Wall((WIN_WIDTH-10,0), 0, (10, WIN_HEIGHT)),
-                 Wall((0, WIN_HEIGHT-10), 90, (WIN_WIDTH, 10))
+    directions = {'left': 270, 'top': 0, 'right': 90, 'bottom': 180}
+    obstacles = [Wall((0, 0),directions['left'],(10, WIN_HEIGHT)), #left
+                 Wall((0, 0), directions['top'], (WIN_WIDTH, 10)), #top
+                 Wall((WIN_WIDTH-10,0), directions['right'], (10, WIN_HEIGHT)), #right
+                 Wall((0, WIN_HEIGHT-10), directions['bottom'], (WIN_WIDTH, 10)), #bottom
+                 Wall((400, 200), directions['right'], (10, 100)) #random wall
                  ]
 
     clock = pg.time.Clock()
@@ -79,8 +80,9 @@ def main():
 
         for obstacle in obstacles:
             if obstacle.collision(ball.circle):#obstacle.x, obstacle.y, obstacle.width, obstacle.height, ball.x, ball.y, 5):
-                print(ball.dir, obstacle.dir, 'collision')
-                ball.dir += math.radians(2*(90-(math.degrees(ball.dir))+(obstacle.dir-90)))
+                # print(ball.dir, obstacle.dir, 'collision')
+                # ball.dir += math.radians(2*(90-(math.degrees(ball.dir))+(obstacle.dir-90)))
+                ball.dir += math.radians((obstacle.dir - math.degrees(ball.dir)) * 2)
 
         pg.display.update()
 
