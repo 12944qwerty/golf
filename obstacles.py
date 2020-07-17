@@ -10,36 +10,28 @@ class Wall:
         self.height = size[1]
         self.rect = pg.Rect((self.x, self.y), (self.width, self.height))
 
+    def get_coords(self):
+        topleft = (self.x, self.y)
+        topright = (self.x + (self.width * math.sin(math.radians(90 - self.dir))),
+                    self.y - (self.width * math.cos(math.radians(90 - self.dir))))
+        bottomleft = (topright[0] + (self.height * math.sin(math.radians(self.dir))),
+                      topright[1] + (self.height * math.cos(math.radians(self.dir))))
+        bottomright = (self.x + (self.height * math.sin(math.radians(self.dir))),
+                       self.y + (self.height * math.cos(math.radians(self.dir))))
+        return topleft, topright, bottomleft, bottomright
+
     def draw(self, surface):
-        pg.draw.rect(surface, (255, 255, 255), self.rect)
+        if self.dir%90 == 0:
+            self.rect = pg.draw.rect(surface, (255, 255, 255), self.rect)
+        else:
+            topleft, topright, bottomleft, bottomright = self.get_coords()
+            self.rect = pg.draw.polygon(surface, (255,255,255), [topleft, topright, bottomleft, bottomright])
 
-    def collision(self, ball): #rleft, rtop, width, height,  # rectangle definition
-    #               center_x, center_y, radius):  # circle definition
-        """ Detect collision between a rectangle and circle. """
-
-        return self.rect.colliderect(ball)
-
-        # # complete boundbox of the rectangle
-        # rright, rbottom = rleft + width / 2, rtop + height / 2
-        #
-        # # bounding box of the circle
-        # cleft, ctop = center_x - radius, center_y - radius
-        # cright, cbottom = center_x + radius, center_y + radius
-        #
-        # # trivial reject if bounding boxes do not intersect
-        # if rright < cleft or rleft > cright or rbottom < ctop or rtop > cbottom:
-        #     return False  # no collision possible
-        #
-        # # check whether any point of rectangle is inside circle's radius
-        # for x in (rleft, rleft + width):
-        #     for y in (rtop, rtop + height):
-        #         # compare distance between circle's center point and each point of
-        #         # the rectangle with the circle's radius
-        #         if math.hypot(x - center_x, y - center_y) <= radius:
-        #             return True  # collision detected
-        #
-        # # check if center of circle is inside rectangle
-        # if rleft <= center_x <= rright and rtop <= center_y <= rbottom:
-        #     return True  # overlaid
-        #
-        # return False  # no collision detected
+    def collision(self, ball):
+        if self.dir%90 == 0:
+            return self.rect.colliderect(ball.circle)
+        else:
+            # How to figure out if the ball is touching the actual shown rectangle, not the hitbox that pygame has.
+            topleft, topright, bottomleft, bottomright = self.get_coords()
+            ball_center = (ball.x + 5, ball.y + 5)
+            

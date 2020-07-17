@@ -1,9 +1,10 @@
 import pygame as pg
 import math
-from random import randint, choice
-from ball import Ball
 import os
 from obstacles import Wall
+from ball import Ball
+from hole import Hole
+from aim import AimBar
 
 pg.init()
 
@@ -17,7 +18,7 @@ WIN_HEIGHT = 800
 surface = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 font = pg.font.SysFont('comicsansms', 24)
 
-def draw_window(surface, ball, level, obstacles):
+def draw_window(surface, ball, level, obstacles, hole):
     pg.draw.rect(surface, (98, 236, 93), pg.Rect((0, 0), (WIN_WIDTH, WIN_HEIGHT)))  # BG
 
     for obstacle in obstacles:
@@ -35,16 +36,23 @@ def draw_window(surface, ball, level, obstacles):
     power = font.render('Power: ' + str(round(ball.power,1)), True, (0, 0, 0))
     surface.blit(power, ((WIN_WIDTH/2) - (power.get_width()/2), 0))
 
+    hole.draw(surface)
     ball.draw(surface)
+
 
 def main():
     ball = Ball(200, 200)
+    aim = AimBar()
+    hole = Hole(400,500)
     directions = {'left': 270, 'top': 0, 'right': 90, 'bottom': 180}
     obstacles = [Wall((0, 0),directions['left'],(10, WIN_HEIGHT)), #left
                  Wall((0, 0), directions['top'], (WIN_WIDTH, 10)), #top
                  Wall((WIN_WIDTH-10,0), directions['right'], (10, WIN_HEIGHT)), #right
                  Wall((0, WIN_HEIGHT-10), directions['bottom'], (WIN_WIDTH, 10)), #bottom
-                 Wall((400, 200), directions['right'], (10, 100)) #random wall
+                 Wall((400, 201), directions['right'], (10, 98)), #random wall
+                 Wall((400,299), directions['bottom'], (10, 1)), #random wall's bottom side
+                 Wall((400,200), directions['top'], (10,1)), #random wall's top side
+                 Wall((700, 200), 70, (10, 100))
                  ]
 
     clock = pg.time.Clock()
@@ -72,17 +80,25 @@ def main():
         ball.move(mousedown)
         if mousedown:
             tick += 1
-            ball.power = (20*math.sin((3/28.64787)*math.radians(tick)))+20
+            ball.power = (20*math.sin((3/28.64787)*math.radians(tick)-14))+20
         else:
             tick = 0
-            ball.power *= .99
-        draw_window(surface, ball, level, obstacles)
+            ball.power *= .999
+        draw_window(surface, ball, level, obstacles, hole)
 
         for obstacle in obstacles:
-            if obstacle.collision(ball.circle):#obstacle.x, obstacle.y, obstacle.width, obstacle.height, ball.x, ball.y, 5):
-                # print(ball.dir, obstacle.dir, 'collision')
-                # ball.dir += math.radians(2*(90-(math.degrees(ball.dir))+(obstacle.dir-90)))
+            if obstacle.collision(ball):
                 ball.dir += math.radians((obstacle.dir - math.degrees(ball.dir)) * 2)
+        if hole.collide(ball):
+            ball.x = hole.x
+            ball.y = hole.y
+            ball.power = 0
+            level += 1
+            ball.x = 200
+            ball.y = 200
+
+        if mousedown:
+            aim.draw(surface, ball)
 
         pg.display.update()
 
