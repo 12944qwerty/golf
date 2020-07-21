@@ -1,5 +1,6 @@
 import pygame as pg
 import math
+from matplotlib.path import Path
 
 class Wall:
     def __init__(self, coord:tuple, dir:int, size:tuple):
@@ -31,7 +32,14 @@ class Wall:
         if self.dir%90 == 0:
             return self.rect.colliderect(ball.circle)
         else:
-            # How to figure out if the ball is touching the actual shown rectangle, not the hitbox that pygame has.
-            topleft, topright, bottomleft, bottomright = self.get_coords()
-            ball_center = (ball.x + 5, ball.y + 5)
-            
+            """How to figure out if the ball is touching the actual shown rectangle, not the hitbox that pygame has.
+            Credit to kenny2github for this"""
+            points1 = self.get_coords()
+            bx = ball.x    # x position of CENTER of the ball
+            by = ball.y    # y position of likewise
+            bd = 5         # RADIUS of the ball
+            t = self.dir   # Direction of Rectangle
+            points2 = [tuple(pg.math.Vector2(p).rotate(t) + (bx, by))
+                       for p in [(bd, 0), (0, bd), (-bd, 0), (0, -bd)]]
+            intersects = any(Path(points1).contains_points(points2))
+            return intersects

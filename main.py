@@ -49,10 +49,10 @@ def main():
                  Wall((0, 0), directions['top'], (WIN_WIDTH, 10)), #top
                  Wall((WIN_WIDTH-10,0), directions['right'], (10, WIN_HEIGHT)), #right
                  Wall((0, WIN_HEIGHT-10), directions['bottom'], (WIN_WIDTH, 10)), #bottom
-                 Wall((400, 201), directions['right'], (10, 98)), #random wall
-                 Wall((400,299), directions['bottom'], (10, 1)), #random wall's bottom side
-                 Wall((400,200), directions['top'], (10,1)), #random wall's top side
-                 Wall((700, 200), 70, (10, 100))
+                 Wall((400, 201), 30, (10, 98)), #random wall
+                 # Wall((400,299), directions['bottom'], (10, 1)), #random wall's bottom side
+                 # Wall((400,200), directions['top'], (10,1)), #random wall's top side
+                 # Wall((700, 200), 30, (10, 100)),
                  ]
 
     clock = pg.time.Clock()
@@ -80,7 +80,7 @@ def main():
         ball.move(mousedown)
         if mousedown:
             tick += 1
-            ball.power = (20*math.sin((3/28.64787)*math.radians(tick)-14))+20
+            ball.power = 10#(20*math.sin((3/28.64787)*math.radians(tick)-14))+20
         else:
             tick = 0
             ball.power *= .999
@@ -88,7 +88,7 @@ def main():
 
         for obstacle in obstacles:
             if obstacle.collision(ball):
-                ball.dir += math.radians((obstacle.dir - math.degrees(ball.dir)) * 2)
+                ball.dir = (360 + (((math.degrees(ball.dir) - 90) * 1)+((obstacle.dir - 90) * 2))) % 360
         if hole.collide(ball):
             ball.x = hole.x
             ball.y = hole.y
