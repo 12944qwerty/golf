@@ -41,5 +41,4 @@ class Wall:
             t = self.dir   # Direction of Rectangle
             points2 = [tuple(pg.math.Vector2(p).rotate(t) + (bx, by))
                        for p in [(bd, 0), (0, bd), (-bd, 0), (0, -bd)]]
-            intersects = any(Path(points1).contains_points(points2))
-            return intersects
+            return any(Path(points1).contains_points(points2))
